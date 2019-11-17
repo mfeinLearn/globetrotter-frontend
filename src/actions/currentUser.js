@@ -1,3 +1,7 @@
+import { resetLoginForm } from "./loginForm.js"
+import { resetSignupForm } from "./signupForm.js"
+import { getMyTrips, clearTrips } from "./myTrips.js"
+
 // synchronous action creators
 export const setCurrentUser = user => {
   return {
@@ -14,19 +18,7 @@ export const clearCurrentUser = () => {
 // asynchronus action creators
 // action creator called login
 
-export const logout = () => {// what does thunk give us?
-  // what data structure am I returning now from a async
-  //.. action creator using thunk? a function
-  return dispatch => {
-    dispatch(clearCurrentUser())
-    return fetch('http://localhost:3001/api/v1/logout', {
-      credentials: "include",
-      method: "DELETE"
-    })
-  }
-}
-
-export const login = credentials => {
+export const login = (credentials, history) => {
   console.log("credentials are", credentials)
   return dispatch => {
     return fetch("http://localhost:3001/api/v1/login", {
@@ -38,11 +30,16 @@ export const login = credentials => {
       body: JSON.stringify(credentials)
     })
     .then(r => r.json())
-    .then(user => {
-      if (user.error) {
-        alert(user.error)
+    .then(response => {
+      if (response.error) {
+        // if fail on login
+        alert(response.error)
       } else {
-        dispatch(setCurrentUser(user)) // this dispatches an actoin
+        dispatch(setCurrentUser(response.data)) // this dispatches an actoin
+        dispatch(getMyTrips())
+        dispatch(resetLoginForm())
+        // if success on login
+        history.push('/')
       }
     })
     .catch(console.log)
@@ -65,6 +62,53 @@ export const login = credentials => {
 //.. Q: so how can I get the information how do I connect login with the loginform?
 //
 
+
+// asynchronus action creators
+// action creator called login
+export const signup = (credentials, history) => {
+  console.log("credentials are", credentials)
+  return dispatch => {
+    const userInfo = {
+      user: credentials
+    }
+    return fetch("http://localhost:3001/api/v1/signup", {
+      credentials: "include",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(userInfo)
+    })
+    .then(r => r.json())
+    .then(response => {
+      if (response.error) {
+        alert(response.error)
+      } else {
+        dispatch(setCurrentUser(response.data)) // this dispatches an actoin
+        dispatch(getMyTrips())
+        dispatch(resetSignupForm())
+        history.push('/')
+      }
+    })
+    .catch(console.log)
+  }
+}
+
+
+export const logout = (event) => {// what does thunk give us?
+  // what data structure am I returning now from a async
+  //.. action creator using thunk? a function
+  return dispatch => {
+    dispatch(clearCurrentUser())
+    dispatch(clearTrips())
+    return fetch('http://localhost:3001/api/v1/logout', {
+      credentials: "include",
+      method: "DELETE"
+    })
+  }
+}
+
+
 export const getCurrentUser = () => {
   console.log("DISPATCHING GET CURRENT USER")
   return dispatch => {
@@ -76,11 +120,12 @@ export const getCurrentUser = () => {
       },
     })
     .then(r => r.json())
-    .then(user => {
-      if (user.error) {
-        alert(user.error)
+    .then(response => {
+      if (response.error) {
+        alert(response.error)
       } else {
-        dispatch(setCurrentUser(user)) // this dispatches an actoin
+        dispatch(setCurrentUser(response.data)) // this dispatches an actoin
+        dispatch(getMyTrips())
       }
     })
     .catch(console.log)

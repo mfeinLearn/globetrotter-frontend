@@ -8,7 +8,7 @@ import { updateLoginForm } from "../actions/loginForm.js"// I now have this acti
 import { login } from "../actions/currentUser.js"
 //..
 
-const Login = ({ loginFormData, updateLoginForm, login }) => {// the updateLoginForm that comes from props is not the same as the one that was inported it is a beefed up reduxed version of that function. now I can use it as my callback on my onChange
+const Login = ({ loginFormData, updateLoginForm, login, history }) => {// the updateLoginForm that comes from props is not the same as the one that was inported it is a beefed up reduxed version of that function. now I can use it as my callback on my onChange
 // THIS IS THE UPDATING FORM HANDLER
   const handleInputChange = event => {
     const { name, value } = event.target
@@ -18,10 +18,10 @@ const Login = ({ loginFormData, updateLoginForm, login }) => {// the updateLogin
     }
     updateLoginForm(updatedFormInfo)// dispatching my updateLoginForm directly from here
   }
-
+  // the following will occur when I successfully login 
   const handleSubmit = event => {
     event.preventDefault()
-    login(loginFormData)
+    login(loginFormData, history)
   }
 
   return (
@@ -97,3 +97,5 @@ export default connect(mapStateToProps, { updateLoginForm, login } )(Login)
 // pass it mapDispatchToProps login. login is an action creator.
 //.. when I have thunk redux knows even if login(action creator) is returning a function it knows what to do by this action creator
 //.. it knows what to do. Redux is like ohh its a function now that I have thunk ill give you dispatch and let you do your thing.
+/////////////////////////
+// Looking at the props of Login history is a top level prop which I can
